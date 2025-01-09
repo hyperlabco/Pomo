@@ -11,10 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let timeLeft = 25 * 60; // Default to 25 minutes
 
+    function updatePageTitle() {
+        const modeText = isWorkMode ? 'Sprint' : 'Chill';
+        document.title = `${modeText} - ${timerDisplay.textContent}`;
+    }
+
     function updateTimerDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        updatePageTitle(); // Update the page title whenever the timer display is updated
     }
 
     function startTimer() {
@@ -27,9 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(timerInterval);
                 timerInterval = null;
                 startPauseButton.textContent = 'Start'; // Reset button text
+                modeDisplay.textContent = 'Do What You Want'; // Reset mode text
+                updatePageTitle(); // Update the page title when the timer ends
                 // Optionally, notify the user or switch modes automatically
             }
         }, 1000);
+        modeDisplay.textContent = isWorkMode ? 'Sprint' : 'Chill'; // Change mode text when timer starts
+        updatePageTitle(); // Update the page title when the timer starts
     }
 
     function pauseTimer() {
@@ -43,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timeLeft = isWorkMode ? 25 * 60 : 5 * 60;
         updateTimerDisplay();
         startPauseButton.textContent = 'Start'; // Reset button text
+        modeDisplay.textContent = 'Do What You Want'; // Reset mode text
+        updatePageTitle(); // Update the page title when the timer is reset
     }
 
     toggleDarkModeButton.addEventListener('click', () => {
@@ -53,10 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleModeButton.addEventListener('click', () => {
         isWorkMode = !isWorkMode;
         modeDisplay.textContent = isWorkMode ? 'Sprint' : 'Chill';
-        toggleModeButton.textContent = isWorkMode ? 'Rest' : 'Work';
+        toggleModeButton.textContent = isWorkMode ? 'Chill' : 'Sprint';
         timeLeft = isWorkMode ? 25 * 60 : 5 * 60;
         updateTimerDisplay();
         startPauseButton.textContent = 'Start'; // Reset button text
+        updatePageTitle(); // Update the page title when the mode changes
     });
 
     startPauseButton.addEventListener('click', () => {
