@@ -9,6 +9,11 @@ body {
     color: #fff;
 }
 
+body.dark-mode {
+    background-color: #111111; /* Dark mode background */
+    color: #fff; /* Ensure text is readable */
+}
+
 .container {
     text-align: center;
     background-color: aliceblue;
@@ -16,6 +21,11 @@ body {
     border-radius: 20px;
     border: 4px solid #ff0000;
     min-width: 400px;
+}
+
+body.dark-mode .container {
+    background-color: #333333; /* Dark mode container background */
+    border-color: #ff4444; /* Optional: change border color for dark mode */
 }
 
 .timer {
@@ -46,6 +56,19 @@ body {
 .controls button:disabled {
     background-color: #666;
     cursor: not-allowed;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #ff0000;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .icon-button {
+    color: #ffcc00; /* Sun color in dark mode */
 }
 
 .mode {

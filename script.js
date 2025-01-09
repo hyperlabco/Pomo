@@ -104,4 +104,20 @@ const pomodoro = new PomodoroTimer();
 // Request notification permission
 if ('Notification' in window) {
     Notification.requestPermission();
-} 
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+    
+    toggleDarkModeButton.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        
+        // Toggle icon
+        if (document.body.classList.contains('dark-mode')) {
+            darkModeIcon.textContent = '☀️'; // Sun icon
+        } else {
+            darkModeIcon.textContent = '🌙'; // Moon icon
+        }
+    });
+}); 
