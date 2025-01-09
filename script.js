@@ -1,123 +1,76 @@
-class PomodoroTimer {
-    constructor() {
-        this.workTime = 25 * 60; // 25 minutes in seconds
-        this.breakTime = 5 * 60; // 5 minutes in seconds
-        this.timeLeft = this.workTime;
-        this.isRunning = false;
-        this.isWorkTime = true;
-        this.timer = null;
-
-        // DOM elements
-        this.timerDisplay = document.querySelector('.timer');
-        this.modeDisplay = document.querySelector('.mode');
-        this.startButton = document.getElementById('startPause');
-        this.resetButton = document.getElementById('reset');
-
-        // Event listeners
-        this.startButton.addEventListener('click', () => this.toggleStartStop());
-        this.resetButton.addEventListener('click', () => this.reset());
-
-        // Initial display
-        this.updateDisplay();
-        this.updateTitle();
-    }
-
-    toggleStartStop() {
-        if (this.isRunning) {
-            this.pause();
-            this.startButton.textContent = 'Start';
-        } else {
-            this.start();
-            this.startButton.textContent = 'Pause';
-        }
-    }
-
-    start() {
-        if (!this.isRunning) {
-            this.isRunning = true;
-            this.timer = setInterval(() => this.tick(), 1000);
-        }
-    }
-
-    pause() {
-        this.isRunning = false;
-        clearInterval(this.timer);
-    }
-
-    reset() {
-        this.pause();
-        this.isWorkTime = true;
-        this.timeLeft = this.workTime;
-        this.modeDisplay.textContent = 'Work Time';
-        this.updateDisplay();
-        this.startButton.textContent = 'Start';
-    }
-
-    tick() {
-        if (this.timeLeft > 0) {
-            this.timeLeft--;
-            this.updateDisplay();
-        } else {
-            this.switchMode();
-        }
-    }
-
-    switchMode() {
-        this.isWorkTime = !this.isWorkTime;
-        this.timeLeft = this.isWorkTime ? this.workTime : this.breakTime;
-        this.modeDisplay.textContent = this.isWorkTime ? 'Work Time' : 'Break Time';
-        this.updateDisplay();
-        this.notifyUser();
-    }
-
-    updateDisplay() {
-        const minutes = Math.floor(this.timeLeft / 60);
-        const seconds = this.timeLeft % 60;
-        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        this.timerDisplay.textContent = timeString;
-        this.updateTitle(timeString);
-    }
-
-    updateTitle(timeString) {
-        // If timeString is undefined (initial state), generate it from the current timeLeft
-        if (!timeString) {
-            const minutes = Math.floor(this.timeLeft / 60);
-            const seconds = this.timeLeft % 60;
-            timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        document.title = `${timeString} - ${this.isWorkTime ? 'Work Time' : 'Break Time'}`;
-    }
-
-    notifyUser() {
-        if (Notification.permission === 'granted') {
-            new Notification('Pomodoro Timer', {
-                body: `Time for ${this.isWorkTime ? 'work' : 'a break'}!`,
-                icon: 'https://example.com/icon.png'
-            });
-        }
-    }
-}
-
-// Initialize the timer
-const pomodoro = new PomodoroTimer();
-
-// Request notification permission
-if ('Notification' in window) {
-    Notification.requestPermission();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const toggleDarkModeButton = document.getElementById('toggleDarkMode');
     const darkModeIcon = document.getElementById('darkModeIcon');
-    
+    const toggleModeButton = document.getElementById('toggleMode');
+    const modeDisplay = document.querySelector('.mode');
+    const timerDisplay = document.querySelector('.timer');
+    const startPauseButton = document.getElementById('startPause');
+    const resetButton = document.getElementById('reset');
+
+    let isWorkMode = true;
+    let timerInterval;
+    let timeLeft = 25 * 60; // Default to 25 minutes
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+        if (timerInterval) return; // Prevent multiple intervals
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateTimerDisplay();
+            } else {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                startPauseButton.textContent = 'Start'; // Reset button text
+                // Optionally, notify the user or switch modes automatically
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = isWorkMode ? 25 * 60 : 5 * 60;
+        updateTimerDisplay();
+        startPauseButton.textContent = 'Start'; // Reset button text
+    }
+
     toggleDarkModeButton.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        
-        // Toggle icon
-        if (document.body.classList.contains('dark-mode')) {
-            darkModeIcon.textContent = '☀️'; // Sun icon
+        darkModeIcon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    });
+
+    toggleModeButton.addEventListener('click', () => {
+        isWorkMode = !isWorkMode;
+        modeDisplay.textContent = isWorkMode ? 'Sprint' : 'Chill';
+        toggleModeButton.textContent = isWorkMode ? 'Rest' : 'Work';
+        timeLeft = isWorkMode ? 25 * 60 : 5 * 60;
+        updateTimerDisplay();
+        startPauseButton.textContent = 'Start'; // Reset button text
+    });
+
+    startPauseButton.addEventListener('click', () => {
+        if (timerInterval) {
+            pauseTimer();
+            startPauseButton.textContent = 'Start';
         } else {
-            darkModeIcon.textContent = '🌙'; // Moon icon
+            startTimer();
+            startPauseButton.textContent = 'Pause';
         }
     });
+
+    resetButton.addEventListener('click', resetTimer);
+
+    // Initialize display
+    updateTimerDisplay();
 }); 
